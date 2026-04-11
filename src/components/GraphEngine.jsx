@@ -1,0 +1,290 @@
+import React, { useEffect, useRef, useState, useCallback, useMemo } from 'react';
+import * as d3 from 'd3';
+import { loadGraphData } from '../utils/markdownParser';
+import Sidebar from './Sidebar';
+import GraphNode from './GraphNode';
+
+export default function GraphEngine() {
+  const containerRef = useRef(null);
+  const transformLayerRef = useRef(null);
+  const simRef = useRef(null);
+  const zoomRef = useRef(null);
+  const nodeRefsMap = useRef({});
+  const labelRefsMap = useRef({});
+  const linkRefsArray = useRef([]);
+
+  const [graphData, setGraphData] = useState(null);
+  const [activeNode, setActiveNode] = useState(null);
+  const [hoveredNode, setHoveredNode] = useState(null);
+
+  // ── Load data once ──
+  useEffect(() => {
+    setGraphData(loadGraphData());
+  }, []);
+
+  // ── Force simulation ──
+  useEffect(() => {
+    if (!graphData) return;
+
+    const width = window.innerWidth;
+    const height = window.innerHeight;
+
+    const cats = [...new Set(graphData.nodes.map(n => n.category))];
+    const clusterTargets = {};
+    cats.forEach((cat, i) => {
+      if (cat === 'center') {
+        clusterTargets[cat] = { x: width / 2, y: height / 2 };
+      } else {
+        const angle = (i / cats.length) * Math.PI * 2 - Math.PI / 2;
+        clusterTargets[cat] = {
+          x: width / 2 + Math.cos(angle) * 250,
+          y: height / 2 + Math.sin(angle) * 250,
+        };
+      }
+    });
+
+    graphData.nodes.forEach(n => {
+      const c = clusterTargets[n.category] || { x: width / 2, y: height / 2 };
+      n.x = c.x + (Math.random() - 0.5) * 200;
+      n.y = c.y + (Math.random() - 0.5) * 200;
+    });
+
+    const simulation = d3.forceSimulation(graphData.nodes)
+      .force('link', d3.forceLink(graphData.links).id(d => d.id).distance(120).strength(0.4))
+      .force('charge', d3.forceManyBody().strength(-600))
+      .force('collide', d3.forceCollide().radius(d => (d.size || 14) + 16).iterations(2))
+      .force('x', d3.forceX().x(d => clusterTargets[d.category]?.x || width / 2).strength(0.04))
+      .force('y', d3.forceY().y(d => clusterTargets[d.category]?.y || height / 2).strength(0.04))
+      .alphaDecay(0.02)
+      .velocityDecay(0.35);
+
+    simulation.on('tick', () => {
+      graphData.links.forEach((link, i) => {
+        const el = linkRefsArray.current[i];
+        if (!el) return;
+        el.setAttribute('x1', link.source.x);
+        el.setAttribute('y1', link.source.y);
+        el.setAttribute('x2', link.target.x);
+        el.setAttribute('y2', link.target.y);
+      });
+
+      graphData.nodes.forEach(n => {
+        const nodeEl = nodeRefsMap.current[n.id];
+        const labelEl = labelRefsMap.current[n.id];
+        if (nodeEl) {
+          nodeEl.style.left = `${n.x}px`;
+          nodeEl.style.top = `${n.y}px`;
+        }
+        if (labelEl) {
+          labelEl.style.left = `${n.x}px`;
+          labelEl.style.top = `${n.y + (n.size || 14) * 1.1 + 10}px`;
+        }
+      });
+    });
+
+    simRef.current = simulation;
+    return () => simulation.stop();
+  }, [graphData]);
+
+  // ── Zoom / Pan ──
+  useEffect(() => {
+    if (!containerRef.current || !transformLayerRef.current) return;
+
+    const layer = transformLayerRef.current;
+    const zoom = d3.zoom()
+      .scaleExtent([0.15, 4])
+      // 3x faster scroll-to-zoom
+      .wheelDelta((event) => -event.deltaY * (event.deltaMode === 1 ? 0.15 : event.deltaMode ? 1 : 0.006))
+      .on('zoom', (e) => {
+        const { x, y, k } = e.transform;
+        layer.style.transform = `translate(${x}px, ${y}px) scale(${k})`;
+      });
+
+    const sel = d3.select(containerRef.current);
+    sel.call(zoom).on('dblclick.zoom', null);
+    zoomRef.current = { zoom, selection: sel };
+
+    return () => sel.on('.zoom', null);
+  }, [graphData]);
+
+  // ── Camera focus when a node is selected ──
+  const focusOnGroup = useCallback((node) => {
+    if (!graphData || !zoomRef.current) return;
+
+    const { zoom, selection } = zoomRef.current;
+    const width = window.innerWidth;
+    const height = window.innerHeight;
+
+    const connIds = new Set([node.id]);
+    graphData.links.forEach(l => {
+      const sid = typeof l.source === 'object' ? l.source.id : l.source;
+      const tid = typeof l.target === 'object' ? l.target.id : l.target;
+      if (sid === node.id) connIds.add(tid);
+      if (tid === node.id) connIds.add(sid);
+    });
+
+    const connNodes = graphData.nodes.filter(n => connIds.has(n.id));
+    if (!connNodes.length) return;
+
+    let minX = Infinity, maxX = -Infinity, minY = Infinity, maxY = -Infinity;
+    connNodes.forEach(n => {
+      minX = Math.min(minX, n.x);
+      maxX = Math.max(maxX, n.x);
+      minY = Math.min(minY, n.y);
+      maxY = Math.max(maxY, n.y);
+    });
+
+    const padding = 120;
+    minX -= padding;
+    maxX += padding;
+    minY -= padding;
+    maxY += padding;
+
+    const bboxW = maxX - minX;
+    const bboxH = maxY - minY;
+    const cx = (minX + maxX) / 2;
+    const cy = (minY + maxY) / 2;
+
+    const sidebarWidth = Math.min(480, width * 0.38);
+    const viewW = width - sidebarWidth;
+    const viewH = height;
+
+    const scale = Math.min(2, Math.max(0.5, Math.min(viewW / bboxW, viewH / bboxH) * 0.85));
+    const targetX = viewW / 2 - cx * scale;
+    const targetY = viewH / 2 - cy * scale;
+
+    const transform = d3.zoomIdentity.translate(targetX, targetY).scale(scale);
+
+    selection.transition()
+      .duration(500)
+      .ease(d3.easeCubicOut)
+      .call(zoom.transform, transform);
+  }, [graphData]);
+
+  // ── Reset camera when sidebar closes ──
+  const resetCamera = useCallback(() => {
+    if (!graphData || !zoomRef.current) return;
+
+    const { zoom, selection } = zoomRef.current;
+    const width = window.innerWidth;
+    const height = window.innerHeight;
+
+    let minX = Infinity, maxX = -Infinity, minY = Infinity, maxY = -Infinity;
+    graphData.nodes.forEach(n => {
+      minX = Math.min(minX, n.x);
+      maxX = Math.max(maxX, n.x);
+      minY = Math.min(minY, n.y);
+      maxY = Math.max(maxY, n.y);
+    });
+
+    const padding = 100;
+    const bboxW = (maxX - minX) + padding * 2;
+    const bboxH = (maxY - minY) + padding * 2;
+    const cx = (minX + maxX) / 2;
+    const cy = (minY + maxY) / 2;
+
+    const scale = Math.min(1.5, Math.min(width / bboxW, height / bboxH) * 0.9);
+    const targetX = width / 2 - cx * scale;
+    const targetY = height / 2 - cy * scale;
+
+    const transform = d3.zoomIdentity.translate(targetX, targetY).scale(scale);
+
+    selection.transition()
+      .duration(500)
+      .ease(d3.easeCubicOut)
+      .call(zoom.transform, transform);
+  }, [graphData]);
+
+  // ── Interaction helpers ──
+  const connectedIds = useMemo(() => {
+    if (!graphData) return null;
+    const target = activeNode || hoveredNode;
+    if (!target) return null;
+    const ids = new Set([target.id]);
+    graphData.links.forEach(l => {
+      const sid = typeof l.source === 'object' ? l.source.id : l.source;
+      const tid = typeof l.target === 'object' ? l.target.id : l.target;
+      if (sid === target.id) ids.add(tid);
+      if (tid === target.id) ids.add(sid);
+    });
+    return ids;
+  }, [graphData, activeNode, hoveredNode]);
+
+  const handleNodeClick = useCallback((node) => {
+    setActiveNode(prev => {
+      if (prev?.id === node.id) {
+        resetCamera();
+        return null;
+      }
+      focusOnGroup(node);
+      return node;
+    });
+  }, [focusOnGroup, resetCamera]);
+
+  const handleCloseSidebar = useCallback(() => {
+    setActiveNode(null);
+    resetCamera();
+  }, [resetCamera]);
+
+  if (!graphData) return null;
+
+  return (
+    <>
+      <div className="noise-bg absolute inset-0 pointer-events-none z-[60]" />
+
+      <div ref={containerRef} className="absolute inset-0 cursor-grab active:cursor-grabbing">
+        {/* No will-change here — lets the browser re-rasterize at each zoom level for crisp rendering */}
+        <div ref={transformLayerRef} style={{ transformOrigin: '0 0' }}>
+          {/* SVG Links — vector-effect keeps strokes crisp at any zoom */}
+          <svg
+            className="absolute overflow-visible"
+            style={{ width: 1, height: 1 }}
+            shapeRendering="geometricPrecision"
+          >
+            {graphData.links.map((link, i) => {
+              const sid = typeof link.source === 'object' ? link.source.id : link.source;
+              const tid = typeof link.target === 'object' ? link.target.id : link.target;
+              const isHighlighted = connectedIds && connectedIds.has(sid) && connectedIds.has(tid);
+              const isDimmed = connectedIds && !isHighlighted;
+
+              return (
+                <line
+                  key={`${sid}-${tid}-${i}`}
+                  ref={el => linkRefsArray.current[i] = el}
+                  stroke={isDimmed ? 'rgba(255,255,255,0.035)' : isHighlighted ? 'rgba(255,255,255,0.18)' : 'rgba(255,255,255,0.06)'}
+                  strokeWidth={isDimmed ? 0.5 : isHighlighted ? 1.5 : 0.8}
+                  vectorEffect="non-scaling-stroke"
+                  style={{ transition: 'stroke 0.4s, stroke-width 0.4s' }}
+                />
+              );
+            })}
+          </svg>
+
+          {/* HTML Nodes */}
+          {graphData.nodes.map((node) => {
+            const isDimmed = connectedIds && !connectedIds.has(node.id);
+            const isActive = activeNode?.id === node.id;
+            const isHovered = hoveredNode?.id === node.id;
+
+            return (
+              <GraphNode
+                key={node.id}
+                node={node}
+                nodeRef={el => nodeRefsMap.current[node.id] = el}
+                labelRef={el => labelRefsMap.current[node.id] = el}
+                isDimmed={isDimmed}
+                isActive={isActive}
+                isHovered={isHovered}
+                onClick={() => handleNodeClick(node)}
+                onMouseEnter={() => setHoveredNode(node)}
+                onMouseLeave={() => setHoveredNode(null)}
+              />
+            );
+          })}
+        </div>
+      </div>
+
+      <Sidebar node={activeNode} onClose={handleCloseSidebar} />
+    </>
+  );
+}
