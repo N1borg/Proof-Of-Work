@@ -1,4 +1,4 @@
-# Robin Caboche — Proof of Work 🪐
+# Robin Caboche - Proof of Work
 
 > **Live Portfolio:** [https://niborgpro.fr](https://niborgpro.fr)
 

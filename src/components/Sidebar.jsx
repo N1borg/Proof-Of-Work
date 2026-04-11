@@ -46,10 +46,11 @@ export default function Sidebar({ node, onClose }) {
         )}
         style={{
           width: expanded ? 'min(900px, 95vw)' : 'min(480px, 90vw)',
-          background: 'rgba(10, 10, 12, 0.88)',
-          backdropFilter: 'blur(32px) saturate(1.3)',
-          WebkitBackdropFilter: 'blur(32px) saturate(1.3)',
-          borderLeft: '1px solid rgba(255, 255, 255, 0.06)',
+          background: 'rgba(30, 30, 35, 0.45)',
+          backdropFilter: 'blur(40px) saturate(180%)',
+          WebkitBackdropFilter: 'blur(40px) saturate(180%)',
+          borderLeft: '1px solid rgba(255, 255, 255, 0.1)',
+          boxShadow: '-8px 0 32px rgba(0,0,0,0.4)',
         }}
         onClick={(e) => e.stopPropagation()}
       >

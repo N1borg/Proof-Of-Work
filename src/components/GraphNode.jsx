@@ -96,12 +96,12 @@ const GraphNode = memo(function GraphNode({
         >
           {node.excerpt && (
             <div 
-              className="w-48 p-3 rounded-lg border border-white/[0.08] text-left"
+              className="w-48 p-3 rounded-lg text-left"
               style={{
-                backgroundColor: 'rgba(15, 15, 18, 0.95)',
-                backdropFilter: 'blur(16px)',
-                WebkitBackdropFilter: 'blur(16px)',
-                boxShadow: '0 8px 32px rgba(0,0,0,0.5)',
+                backgroundColor: 'rgba(30, 30, 35, 0.45)',
+                backdropFilter: 'blur(24px) saturate(180%)',
+                WebkitBackdropFilter: 'blur(24px) saturate(180%)',
+                boxShadow: '0 12px 40px rgba(0,0,0,0.5), inset 0 0 0 1px rgba(255,255,255,0.1), inset 0 1px 0 rgba(255,255,255,0.2)',
               }}
             >
               <div className="flex justify-between items-center mb-1.5">
