@@ -12,6 +12,7 @@ export default function GraphEngine() {
   const nodeRefsMap = useRef({});
   const labelRefsMap = useRef({});
   const linkRefsArray = useRef([]);
+  const savedTransformRef = useRef(null);
 
   const [graphData, setGraphData] = useState(null);
   const [activeNode, setActiveNode] = useState(null);
@@ -145,6 +146,10 @@ export default function GraphEngine() {
     const cx = (minX + maxX) / 2;
     const cy = (minY + maxY) / 2;
 
+    if (!activeNode) {
+      savedTransformRef.current = d3.zoomTransform(selection.node());
+    }
+
     const sidebarWidth = Math.min(480, width * 0.38);
     const viewW = width - sidebarWidth;
     const viewH = height;
@@ -166,6 +171,16 @@ export default function GraphEngine() {
     if (!graphData || !zoomRef.current) return;
 
     const { zoom, selection } = zoomRef.current;
+    
+    if (savedTransformRef.current) {
+      selection.transition()
+        .duration(500)
+        .ease(d3.easeCubicOut)
+        .call(zoom.transform, savedTransformRef.current);
+      savedTransformRef.current = null;
+      return;
+    }
+
     const width = window.innerWidth;
     const height = window.innerHeight;
 
@@ -251,8 +266,8 @@ export default function GraphEngine() {
                 <line
                   key={`${sid}-${tid}-${i}`}
                   ref={el => linkRefsArray.current[i] = el}
-                  stroke={isDimmed ? 'rgba(255,255,255,0.035)' : isHighlighted ? 'rgba(255,255,255,0.18)' : 'rgba(255,255,255,0.06)'}
-                  strokeWidth={isDimmed ? 0.5 : isHighlighted ? 1.5 : 0.8}
+                  stroke={isDimmed ? 'rgba(255,255,255,0.05)' : isHighlighted ? 'rgba(255,255,255,0.3)' : 'rgba(255,255,255,0.12)'}
+                  strokeWidth={isDimmed ? 0.6 : isHighlighted ? 2.0 : 1.0}
                   vectorEffect="non-scaling-stroke"
                   style={{ transition: 'stroke 0.4s, stroke-width 0.4s' }}
                 />

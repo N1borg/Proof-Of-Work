@@ -13,6 +13,17 @@ export default function Sidebar({ node, onClose }) {
     if (expanded) setExpanded(false);
   }
 
+  // Close on Escape key
+  React.useEffect(() => {
+    const handleKeyDown = (e) => {
+      if (e.key === 'Escape' && node) {
+        onClose();
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [node, onClose]);
+
   return (
     <>
       {/* Backdrop */}
