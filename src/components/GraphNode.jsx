@@ -25,32 +25,52 @@ const GraphNode = memo(function GraphNode({
   React.useEffect(() => {
     if (isHovered && node.excerpt && nodeRef.current) {
       const rect = nodeRef.current.getBoundingClientRect();
-      
-      // Calculate current D3 engine zoom scale applied to this node
       const currentZoomScale = rect.width / diameter;
       
-      const padding = 20;
-      // Multiply standard CSS sizes by the zoom scale to get actual physical screen pixels
+      const padding = 24; 
+      const topBarHeight = 80; // Reserve space for the Topbar
+      
       const actualCardWidth = 210 * currentZoomScale; 
       const actualCardHeight = 130 * currentZoomScale;
       
-      let pos = 'right';
-      if (rect.right + actualCardWidth + padding > window.innerWidth) pos = 'left';
-      if (pos === 'left' && rect.left - actualCardWidth - padding < 0) pos = 'bottom';
-      if (pos === 'bottom' && rect.bottom + actualCardHeight + padding > window.innerHeight) pos = 'top';
-      if (pos === 'top' && rect.top - actualCardHeight - padding < 0) pos = 'right'; // fallback
+      const spaceRight = window.innerWidth - rect.right - padding;
+      const spaceLeft = rect.left - padding;
+      const spaceBottom = window.innerHeight - rect.bottom - padding;
+      const spaceTop = rect.top - topBarHeight - padding;
+
+      const rightOk = spaceRight >= actualCardWidth;
+      const leftOk = spaceLeft >= actualCardWidth;
+      const bottomOk = spaceBottom >= actualCardHeight;
+      const topOk = spaceTop >= actualCardHeight;
+
+      let pos = 'right'; // Our default ideal position
+
+      // Simple waterfall for optimal placement tracking
+      if (rightOk) pos = 'right';
+      else if (leftOk) pos = 'left';
+      else if (bottomOk) pos = 'bottom';
+      else if (topOk) pos = 'top';
+      else {
+        // Completely cornered! Find the absolute maximum available coordinate space
+        const maxSpace = Math.max(spaceRight, spaceLeft, spaceBottom, spaceTop);
+        if (maxSpace === spaceRight) pos = 'right';
+        else if (maxSpace === spaceLeft) pos = 'left';
+        else if (maxSpace === spaceBottom) pos = 'bottom';
+        else pos = 'top';
+      }
       
       setPreviewPos(pos);
     }
   }, [isHovered, node.excerpt, diameter]);
 
   const getPreviewStyle = () => {
+    // Explicitly unsetting opposite boundaries to break CSS transition sticky limits
     switch (previewPos) {
-      case 'right': return { left: 'calc(100% + 16px)', top: '50%', transform: 'translateY(-50%)' };
-      case 'left': return { right: 'calc(100% + 16px)', top: '50%', transform: 'translateY(-50%)' };
-      case 'bottom': return { top: 'calc(100% + 16px)', left: '50%', transform: 'translateX(-50%)' };
-      case 'top': return { bottom: 'calc(100% + 16px)', left: '50%', transform: 'translateX(-50%)' };
-      default: return { left: 'calc(100% + 16px)', top: '50%', transform: 'translateY(-50%)' };
+      case 'left': return { right: 'calc(100% + 16px)', left: 'auto', top: '50%', bottom: 'auto', transform: 'translateY(-50%)' };
+      case 'bottom': return { top: 'calc(100% + 16px)', bottom: 'auto', left: '50%', right: 'auto', transform: 'translateX(-50%)' };
+      case 'top': return { bottom: 'calc(100% + 16px)', top: 'auto', left: '50%', right: 'auto', transform: 'translateX(-50%)' };
+      case 'right': 
+      default: return { left: 'calc(100% + 16px)', right: 'auto', top: '50%', bottom: 'auto', transform: 'translateY(-50%)' };
     }
   };
 
