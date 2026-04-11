@@ -13,8 +13,12 @@ const GraphNode = memo(function GraphNode({
   onMouseLeave,
 }) {
   const Icon = Icons[node.icon] || Icons.Circle;
-  const size = node.size || 14;
-  const diameter = size * 2.2;
+  const size = Math.round(node.size || 14);
+  
+  // Create an even integer for diameter to ensure -50% translate and flex centering lands perfectly on whole pixels
+  let rawDiameter = Math.round(size * 2.2);
+  const diameter = rawDiameter % 2 === 0 ? rawDiameter : rawDiameter + 1;
+  
   const highlighted = isActive || isHovered;
   const scale = highlighted ? 1.2 : 1;
 
