@@ -78,9 +78,8 @@ const GraphNode = memo(function GraphNode({
           width: diameter,
           height: diameter,
           transform: `translate(-50%, -50%) scale(${scale})`,
-          transition: 'transform 0.25s ease-out, opacity 0.35s ease, box-shadow 0.3s, border-color 0.3s',
-          opacity: isDimmed ? 0.22 : 1,
-          backgroundColor: 'rgba(8, 8, 8, 0.85)',
+          transition: 'transform 0.25s ease-out, box-shadow 0.3s, border-color 0.3s',
+          backgroundColor: 'rgba(8, 8, 8, 1)',
           borderColor: isDimmed ? 'rgba(255,255,255,0.06)' : `${node.color}50`,
           boxShadow: highlighted
             ? `0 0 24px 4px ${node.color}30, 0 0 60px 8px ${node.color}10, inset 0 0 12px ${node.color}15`
