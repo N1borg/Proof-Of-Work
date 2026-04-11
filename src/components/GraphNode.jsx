@@ -16,7 +16,7 @@ const GraphNode = memo(function GraphNode({
   const size = node.size || 14;
   const diameter = size * 2.2;
   const highlighted = isActive || isHovered;
-  const scale = highlighted ? 1.2 : isDimmed ? 0.9 : 1;
+  const scale = highlighted ? 1.2 : 1;
 
   return (
     <>
