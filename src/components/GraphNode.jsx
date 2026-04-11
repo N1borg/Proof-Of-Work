@@ -93,7 +93,7 @@ const GraphNode = memo(function GraphNode({
       >
         <Icon
           size={size}
-          color={isDimmed ? 'rgba(255,255,255,0.2)' : node.color}
+          color={isDimmed ? '#555555' : node.color}
           strokeWidth={1.5}
           style={{ transition: 'stroke 0.3s ease, color 0.3s ease' }}
         />
