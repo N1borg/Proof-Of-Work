@@ -69,6 +69,7 @@ export function loadGraphData() {
       color: frontmatter.color || '#333333',
       icon: frontmatter.icon || 'Circle',
       connections: frontmatter.connections || [],
+      date: frontmatter.date || null,
       content: content,
       excerpt: frontmatter.description || extractExcerpt(content)
     });

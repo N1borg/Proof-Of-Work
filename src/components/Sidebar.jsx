@@ -1,9 +1,9 @@
 import React, { useState } from 'react';
 import ReactMarkdown from 'react-markdown';
-import { X, Maximize2, Minimize2 } from 'lucide-react';
+import { X, Maximize2, Minimize2, Calendar } from 'lucide-react';
 import clsx from 'clsx';
 
-export default function Sidebar({ node, onClose }) {
+export default function Sidebar({ node, onClose, onExpandChange }) {
   const [expanded, setExpanded] = useState(false);
 
   // Reset expanded state when node changes
@@ -12,6 +12,12 @@ export default function Sidebar({ node, onClose }) {
     prevNodeRef.current = node?.id;
     if (expanded) setExpanded(false);
   }
+
+  const handleToggleExpand = () => {
+    const next = !expanded;
+    setExpanded(next);
+    onExpandChange?.(next);
+  };
 
   // Close on Escape key
   React.useEffect(() => {
@@ -56,8 +62,14 @@ export default function Sidebar({ node, onClose }) {
       >
         {node && (
           <>
+            {/* Accent line at top */}
+            <div
+              className="h-[2px] w-full shrink-0"
+              style={{ background: `linear-gradient(90deg, ${node.color}60, ${node.color}15, transparent)` }}
+            />
+
             {/* Header */}
-            <div className="flex items-center justify-between px-8 pt-7 pb-5 border-b border-white/[0.06] shrink-0">
+            <div className="flex items-center justify-between px-8 pt-6 pb-5 border-b border-white/[0.06] shrink-0">
               <div className="flex items-center gap-4 min-w-0">
                 <div
                   className="w-2.5 h-2.5 rounded-full shrink-0"
@@ -70,7 +82,7 @@ export default function Sidebar({ node, onClose }) {
               </div>
               <div className="flex items-center gap-1">
                 <button
-                  onClick={() => setExpanded(e => !e)}
+                  onClick={handleToggleExpand}
                   className="p-2 rounded-full hover:bg-white/[0.06] transition-colors text-white/30 hover:text-white/70"
                   title={expanded ? 'Collapse' : 'Expand'}
                 >
@@ -85,6 +97,14 @@ export default function Sidebar({ node, onClose }) {
               </div>
             </div>
 
+            {/* Date badge */}
+            {node.date && (
+              <div className="px-8 pt-4 pb-2 flex items-center gap-2 shrink-0">
+                <Calendar size={12} style={{ color: node.color }} className="opacity-60" />
+                <span className="text-[11px] tracking-wide text-white/40">{node.date}</span>
+              </div>
+            )}
+
             {/* Content */}
             <div className="flex-1 overflow-y-auto px-8 py-6 sidebar-content cursor-text">
               <ReactMarkdown
@@ -93,7 +113,9 @@ export default function Sidebar({ node, onClose }) {
                     <h1 className="text-[22px] font-normal tracking-tight text-white/90 border-b border-white/[0.06] pb-4 mb-6 mt-1 leading-snug">{children}</h1>
                   ),
                   h2: ({ children }) => (
-                    <h2 className="text-[13px] font-semibold uppercase tracking-[0.12em] text-white/50 mt-9 mb-3">{children}</h2>
+                    <h2 className="text-[13px] font-semibold uppercase tracking-[0.12em] mt-9 mb-3"
+                      style={{ color: `${node.color}90` }}
+                    >{children}</h2>
                   ),
                   h3: ({ children }) => (
                     <h3 className="text-sm font-medium text-white/65 mt-6 mb-2">{children}</h3>
@@ -105,7 +127,12 @@ export default function Sidebar({ node, onClose }) {
                     <ul className="space-y-2.5 mb-6 text-[13.5px] text-white/55">{children}</ul>
                   ),
                   li: ({ children }) => (
-                    <li className="leading-[1.7] pl-5 relative before:content-[''] before:absolute before:left-0 before:top-[10px] before:w-1 before:h-1 before:rounded-full before:bg-white/25">{children}</li>
+                    <li className="leading-[1.7] pl-5 relative before:content-[''] before:absolute before:left-0 before:top-[10px] before:w-1 before:h-1 before:rounded-full"
+                      style={{ '--tw-before-bg': node.color }}
+                    >
+                      <span className="before:absolute before:left-0 before:top-[10px] before:w-1 before:h-1 before:rounded-full" style={{}}></span>
+                      {children}
+                    </li>
                   ),
                   strong: ({ children }) => (
                     <strong className="font-semibold text-white/75">{children}</strong>
@@ -117,24 +144,28 @@ export default function Sidebar({ node, onClose }) {
                     const isBlock = className?.includes('language-');
                     if (isBlock) {
                       return (
-                        <code className="text-[12px] font-mono text-emerald-300/60 leading-relaxed">{children}</code>
+                        <code className="text-[12px] font-mono leading-relaxed" style={{ color: `${node.color}99` }}>{children}</code>
                       );
                     }
                     return (
-                      <code className="bg-white/[0.05] text-sky-300/70 text-[12px] font-mono px-1.5 py-0.5 rounded border border-white/[0.04]">{children}</code>
+                      <code className="text-[12px] font-mono px-1.5 py-0.5 rounded border border-white/[0.04]"
+                        style={{ backgroundColor: `${node.color}10`, color: `${node.color}cc` }}
+                      >{children}</code>
                     );
                   },
                   pre: ({ children }) => (
                     <pre className="bg-[#07080a] border border-white/[0.05] rounded-lg p-5 my-6 overflow-x-auto">{children}</pre>
                   ),
                   blockquote: ({ children }) => (
-                    <blockquote className="border-l-2 border-white/[0.08] pl-5 my-6 text-[13px] italic text-white/35">{children}</blockquote>
+                    <blockquote className="pl-5 my-6 text-[13px] italic text-white/35"
+                      style={{ borderLeft: `2px solid ${node.color}30` }}
+                    >{children}</blockquote>
                   ),
                   a: ({ href, children }) => (
-                    <a href={href} className="text-sky-400/70 underline decoration-sky-400/20 hover:decoration-sky-400/50 underline-offset-2 transition-colors" target="_blank" rel="noopener noreferrer">{children}</a>
+                    <a href={href} className="underline underline-offset-2 transition-colors" style={{ color: `${node.color}bb`, textDecorationColor: `${node.color}30` }} target="_blank" rel="noopener noreferrer">{children}</a>
                   ),
                   hr: () => (
-                    <hr className="border-t border-white/[0.06] my-8" />
+                    <hr className="my-8" style={{ borderColor: `${node.color}15` }} />
                   ),
                 }}
               >

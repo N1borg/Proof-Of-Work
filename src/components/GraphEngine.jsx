@@ -3,6 +3,7 @@ import * as d3 from 'd3';
 import { loadGraphData } from '../utils/markdownParser';
 import Sidebar from './Sidebar';
 import GraphNode from './GraphNode';
+import Topbar from './Topbar';
 
 export default function GraphEngine() {
   const containerRef = useRef(null);
@@ -37,9 +38,10 @@ export default function GraphEngine() {
         clusterTargets[cat] = { x: width / 2, y: height / 2 };
       } else {
         const angle = (i / cats.length) * Math.PI * 2 - Math.PI / 2;
+        const spread = Math.min(width, height) * 0.28;
         clusterTargets[cat] = {
-          x: width / 2 + Math.cos(angle) * 250,
-          y: height / 2 + Math.sin(angle) * 250,
+          x: width / 2 + Math.cos(angle) * spread,
+          y: height / 2 + Math.sin(angle) * spread,
         };
       }
     });
@@ -51,9 +53,9 @@ export default function GraphEngine() {
     });
 
     const simulation = d3.forceSimulation(graphData.nodes)
-      .force('link', d3.forceLink(graphData.links).id(d => d.id).distance(120).strength(0.4))
-      .force('charge', d3.forceManyBody().strength(-600))
-      .force('collide', d3.forceCollide().radius(d => (d.size || 14) + 16).iterations(2))
+      .force('link', d3.forceLink(graphData.links).id(d => d.id).distance(140).strength(0.35))
+      .force('charge', d3.forceManyBody().strength(-800))
+      .force('collide', d3.forceCollide().radius(d => (d.size || 14) + 22).iterations(2))
       .force('x', d3.forceX().x(d => clusterTargets[d.category]?.x || width / 2).strength(0.04))
       .force('y', d3.forceY().y(d => clusterTargets[d.category]?.y || height / 2).strength(0.04))
       .alphaDecay(0.02)
@@ -109,7 +111,7 @@ export default function GraphEngine() {
   }, [graphData]);
 
   // ── Camera focus when a node is selected ──
-  const focusOnGroup = useCallback((node) => {
+  const focusOnGroup = useCallback((node, isExpanded = false) => {
     if (!graphData || !zoomRef.current) return;
 
     const { zoom, selection } = zoomRef.current;
@@ -150,7 +152,7 @@ export default function GraphEngine() {
       savedTransformRef.current = d3.zoomTransform(selection.node());
     }
 
-    const sidebarWidth = Math.min(480, width * 0.38);
+    const sidebarWidth = isExpanded ? Math.min(900, width * 0.95) : Math.min(480, width * 0.38);
     const viewW = width - sidebarWidth;
     const viewH = height;
 
@@ -241,6 +243,24 @@ export default function GraphEngine() {
     resetCamera();
   }, [resetCamera]);
 
+  const handleSidebarExpand = useCallback((isExpanded) => {
+    if (activeNode) {
+      focusOnGroup(activeNode, isExpanded);
+    }
+  }, [activeNode, focusOnGroup]);
+
+  // Build category list for toplbar legend
+  const categoryList = useMemo(() => {
+    if (!graphData) return [];
+    const seen = new Map();
+    graphData.nodes.forEach(n => {
+      if (!seen.has(n.category)) {
+        seen.set(n.category, { name: n.category, color: n.color });
+      }
+    });
+    return Array.from(seen.values());
+  }, [graphData]);
+
   if (!graphData) return null;
 
   return (
@@ -299,7 +319,8 @@ export default function GraphEngine() {
         </div>
       </div>
 
-      <Sidebar node={activeNode} onClose={handleCloseSidebar} />
+      <Topbar categories={categoryList} />
+      <Sidebar node={activeNode} onClose={handleCloseSidebar} onExpandChange={handleSidebarExpand} />
     </>
   );
 }
