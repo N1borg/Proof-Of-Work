@@ -32,9 +32,34 @@ export default function Topbar({ categories = [] }) {
           </p>
         </div>
 
-        {/* Center: Category Legend */}
+        {/* Center: Social Links */}
+        <div className="hidden sm:flex items-center gap-6">
+          {socialLinks.map((link) => (
+            <a
+              key={link.name}
+              href={link.href}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="flex flex-col items-center gap-1.5 group transition-all duration-300"
+            >
+              <link.icon
+                size={20}
+                strokeWidth={1.5}
+                className="text-white/60 transition-colors duration-300 group-hover:drop-shadow-sm"
+                style={{}}
+              />
+              <span
+                className="text-[9px] uppercase tracking-wider text-white/40 transition-colors duration-300"
+              >
+                {link.name}
+              </span>
+            </a>
+          ))}
+        </div>
+
+        {/* Right: Category Legend */}
         {uniqueCategories.length > 0 && (
-          <div className="hidden md:flex items-center gap-2 flex-wrap justify-center">
+          <div className="hidden md:flex items-center gap-2 shrink-0">
             {uniqueCategories.map((cat) => (
               <div
                 key={cat.name}
@@ -45,47 +70,22 @@ export default function Topbar({ categories = [] }) {
                   className="w-[6px] h-[6px] rounded-full shrink-0"
                   style={{ backgroundColor: cat.color, boxShadow: `0 0 6px ${cat.color}40` }}
                 />
-                <span className="text-[9px] uppercase tracking-[0.1em] text-white/45 font-medium">
+                <span className="text-[10px] uppercase tracking-[0.08em] text-white/50 font-medium">
                   {cat.name}
                 </span>
               </div>
             ))}
           </div>
         )}
-
-        {/* Right: Social Links */}
-        <div className="flex items-center gap-5 shrink-0">
-          {socialLinks.map((link) => (
-            <a
-              key={link.name}
-              href={link.href}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="flex flex-col items-center gap-1 group transition-all duration-300"
-            >
-              <link.icon
-                size={18}
-                strokeWidth={1.5}
-                className="text-white/60 transition-colors duration-300"
-                style={{ color: undefined }}
-              />
-              <span className="text-[8px] uppercase tracking-wider text-white/30 group-hover:text-white/60 transition-colors duration-300">
-                {link.name}
-              </span>
-              {/* Inject hover color via CSS */}
-              <style>{`
-                a:has([class*="group"]):hover .lucide,
-                .group:hover .lucide { color: inherit; }
-              `}</style>
-            </a>
-          ))}
-        </div>
       </div>
 
-      {/* Hover color styles */}
+      {/* Hover color styles for social links */}
       <style>{`
         ${socialLinks.map((link, i) => `
-          .flex.items-center.gap-5 > a:nth-child(${i + 1}):hover svg {
+          .hidden.sm\\:flex.items-center.gap-6 > a:nth-child(${i + 1}):hover svg {
+            color: ${link.color} !important;
+          }
+          .hidden.sm\\:flex.items-center.gap-6 > a:nth-child(${i + 1}):hover span {
             color: ${link.color} !important;
           }
         `).join('')}

@@ -37,9 +37,19 @@ const GraphNode = memo(function GraphNode({
           <span className="text-[11px] font-medium tracking-wider text-white/70 uppercase">
             {node.label}
           </span>
-          {highlighted && node.subtitle && (
-            <div className="text-[9px] text-white/40 tracking-wide mt-0.5">
-              {node.subtitle}
+          {node.subtitle && (
+            <div
+              className="transition-all duration-400 ease-out mt-0.5"
+              style={{
+                opacity: highlighted ? 1 : 0,
+                filter: highlighted ? 'blur(0px)' : 'blur(6px)',
+                maxHeight: highlighted ? '20px' : '0px',
+                overflow: 'hidden',
+              }}
+            >
+              <span className="text-[9px] tracking-wide" style={{ color: `${node.color}88` }}>
+                {node.subtitle}
+              </span>
             </div>
           )}
         </div>
@@ -96,16 +106,18 @@ const GraphNode = memo(function GraphNode({
         >
           {node.excerpt && (
             <div 
-              className="w-48 p-3 rounded-xl border border-white/[0.12] text-left"
+              className="w-48 p-3 rounded-xl text-left"
               style={{
                 backgroundColor: 'rgba(18, 18, 22, 0.72)',
                 backdropFilter: 'blur(40px) saturate(1.8)',
                 WebkitBackdropFilter: 'blur(40px) saturate(1.8)',
                 boxShadow: 'inset 0 0 0 0.5px rgba(255,255,255,0.06), 0 8px 32px rgba(0,0,0,0.4)',
+                border: `1px solid ${node.color}20`,
+                borderTop: `1px solid ${node.color}40`,
               }}
             >
               <div className="flex justify-between items-center mb-1.5">
-                <span className="text-[8px] uppercase tracking-widest text-white/40">{node.category}</span>
+                <span className="text-[8px] uppercase tracking-widest font-medium" style={{ color: `${node.color}99` }}>{node.category}</span>
               </div>
               <p className="text-[10px] leading-relaxed text-white/70 line-clamp-3 overflow-hidden text-ellipsis m-0">
                 {node.excerpt}
