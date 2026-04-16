@@ -364,7 +364,7 @@ export default function GraphEngine() {
         nodes={graphData.nodes}
         links={graphData.links}
         transform={zoomTransform}
-        visible={minimapVisible}
+        visible={minimapVisible && !activeNode}
         onViewportClick={handleMinimapClick}
       />
     </>

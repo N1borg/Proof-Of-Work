@@ -188,9 +188,8 @@ export default function MiniMap({
               width={viewport.width}
               height={viewport.height}
               fill="none"
-              stroke="rgba(255,255,255,0.3)"
-              strokeWidth="1"
-              strokeDasharray="2,2"
+              stroke="rgba(255,255,255,0.4)"
+              strokeWidth="1.5"
               pointerEvents="none"
             />
           )}
