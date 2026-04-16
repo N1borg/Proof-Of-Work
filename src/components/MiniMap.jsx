@@ -84,10 +84,9 @@ export default function MiniMap({
 
   // Check if viewport covers most of the minimap (to determine visibility)
   const shouldShow = useMemo(() => {
-    if (!viewport) return false;
-    const coverage = (viewport.width * viewport.height) / (MINIMAP_WIDTH * MINIMAP_HEIGHT);
-    return coverage < 0.85; // Show if viewport covers less than 85% of minimap
-  }, [viewport]);
+    // Always show for testing
+    return true;
+  }, []);
 
   const handleMiniMapClick = useCallback((e) => {
     if (!onViewportClick || !viewport || !transform) return;
