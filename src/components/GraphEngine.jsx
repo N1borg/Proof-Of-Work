@@ -4,6 +4,7 @@ import { loadGraphData } from '../utils/markdownParser';
 import Sidebar from './Sidebar';
 import GraphNode from './GraphNode';
 import Topbar from './Topbar';
+import MiniMap from './MiniMap';
 
 export default function GraphEngine() {
   const containerRef = useRef(null);
@@ -19,6 +20,9 @@ export default function GraphEngine() {
   const [activeNode, setActiveNode] = useState(null);
   const [hoveredNode, setHoveredNode] = useState(null);
   const [selectedCategory, setSelectedCategory] = useState(null);
+  const [zoomTransform, setZoomTransform] = useState(null);
+  const [minimapVisible, setMinimapVisible] = useState(false);
+  const minimapTimeoutRef = useRef(null);
 
   // ── Load data once ──
   useEffect(() => {
@@ -102,13 +106,28 @@ export default function GraphEngine() {
       .on('zoom', (e) => {
         const { x, y, k } = e.transform;
         layer.style.transform = `translate(${x}px, ${y}px) scale(${k})`;
+        
+        // Update zoom transform and show minimap
+        setZoomTransform(e.transform);
+        setMinimapVisible(true);
+        
+        // Auto-hide minimap after 2 seconds
+        if (minimapTimeoutRef.current) {
+          clearTimeout(minimapTimeoutRef.current);
+        }
+        minimapTimeoutRef.current = setTimeout(() => {
+          setMinimapVisible(false);
+        }, 2000);
       });
 
     const sel = d3.select(containerRef.current);
     sel.call(zoom).on('dblclick.zoom', null);
     zoomRef.current = { zoom, selection: sel };
 
-    return () => sel.on('.zoom', null);
+    return () => {
+      sel.on('.zoom', null);
+      if (minimapTimeoutRef.current) clearTimeout(minimapTimeoutRef.current);
+    };
   }, [graphData]);
 
   // ── Camera focus when a node is selected ──
@@ -265,6 +284,19 @@ export default function GraphEngine() {
     }
   }, [activeNode, focusOnGroup]);
 
+  // Handle minimap viewport navigation
+  const handleMinimapClick = useCallback((newTransform) => {
+    if (!zoomRef.current) return;
+    
+    const { zoom, selection } = zoomRef.current;
+    const transform = d3.zoomIdentity.translate(newTransform.x, newTransform.y).scale(newTransform.k);
+    
+    selection.transition()
+      .duration(300)
+      .ease(d3.easeCubicOut)
+      .call(zoom.transform, transform);
+  }, []);
+
   // Build category list for toplbar legend
   const categoryList = useMemo(() => {
     if (!graphData) return [];
@@ -337,6 +369,13 @@ export default function GraphEngine() {
 
       <Topbar categories={categoryList} selectedCategory={selectedCategory} onCategoryClick={setSelectedCategory} />
       <Sidebar node={activeNode} onClose={handleCloseSidebar} onExpandChange={handleSidebarExpand} />
+      <MiniMap
+        nodes={graphData.nodes}
+        links={graphData.links}
+        transform={zoomTransform}
+        visible={minimapVisible}
+        onViewportClick={handleMinimapClick}
+      />
     </>
   );
 }
