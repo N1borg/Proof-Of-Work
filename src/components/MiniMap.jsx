@@ -19,32 +19,40 @@ export default function MiniMap({
 
     let minX = Infinity, maxX = -Infinity, minY = Infinity, maxY = -Infinity;
     nodes.forEach(n => {
-      minX = Math.min(minX, n.x);
-      maxX = Math.max(maxX, n.x);
-      minY = Math.min(minY, n.y);
-      maxY = Math.max(maxY, n.y);
+      if (n.x !== undefined && n.y !== undefined) {
+        minX = Math.min(minX, n.x);
+        maxX = Math.max(maxX, n.x);
+        minY = Math.min(minY, n.y);
+        maxY = Math.max(maxY, n.y);
+      }
     });
 
-    const padding = 150;
-    minX -= padding;
-    maxX += padding;
-    minY -= padding;
-    maxY += padding;
-
+    // Add padding around the bounds
+    const paddingAmount = Math.max(100, (maxX - minX) * 0.1, (maxY - minY) * 0.1);
+    
     return {
-      minX,
-      maxX,
-      minY,
-      maxY,
-      width: maxX - minX,
-      height: maxY - minY,
+      minX: minX - paddingAmount,
+      maxX: maxX + paddingAmount,
+      minY: minY - paddingAmount,
+      maxY: maxY + paddingAmount,
+      width: (maxX - minX) + paddingAmount * 2,
+      height: (maxY - minY) + paddingAmount * 2,
     };
   }, [nodes]);
 
   // Calculate scale to fit the minimap
   const scale = useMemo(() => {
-    const scaleX = (MINIMAP_WIDTH - PADDING * 2) / bounds.width;
-    const scaleY = (MINIMAP_HEIGHT - PADDING * 2) / bounds.height;
+    const availableWidth = MINIMAP_WIDTH - PADDING * 2;
+    const availableHeight = MINIMAP_HEIGHT - PADDING * 2;
+    
+    if (bounds.width <= 0 || bounds.height <= 0) {
+      return 1;
+    }
+    
+    const scaleX = availableWidth / bounds.width;
+    const scaleY = availableHeight / bounds.height;
+    
+    // Use the smaller scale to ensure everything fits
     return Math.min(scaleX, scaleY);
   }, [bounds]);
 
@@ -136,10 +144,20 @@ export default function MiniMap({
         {/* Minimap SVG */}
         <svg
           className="w-full h-full"
-          style={{ display: 'block' }}
+          style={{ display: 'block', backgroundColor: 'rgba(0,0,0,0.2)' }}
           viewBox={`0 0 ${MINIMAP_WIDTH} ${MINIMAP_HEIGHT}`}
+          preserveAspectRatio="xMidYMid meet"
           shapeRendering="crispEdges"
         >
+          {/* Background */}
+          <rect
+            x="0"
+            y="0"
+            width={MINIMAP_WIDTH}
+            height={MINIMAP_HEIGHT}
+            fill="rgba(0,0,0,0.1)"
+          />
+          
           {/* Links */}
           {links.map((link, i) => {
             const source = link.source.id ? link.source : nodes.find(n => n.id === link.source);
@@ -188,8 +206,9 @@ export default function MiniMap({
               width={viewport.width}
               height={viewport.height}
               fill="none"
-              stroke="rgba(255,255,255,0.4)"
-              strokeWidth="1.5"
+              stroke="rgba(255,255,255,0.3)"
+              strokeWidth="1"
+              strokeDasharray="2,2"
               pointerEvents="none"
             />
           )}
