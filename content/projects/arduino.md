@@ -4,7 +4,6 @@ label: Arduino
 subtitle: Microcontroller
 category: projects
 size: 12
-color: "#f59e0b"
 icon: Cpu
 connections: ["robin","c"]
 ---

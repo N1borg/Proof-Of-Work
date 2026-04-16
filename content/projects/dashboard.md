@@ -4,7 +4,6 @@ label: Dashboard
 subtitle: Monitoring UI
 category: projects
 size: 12
-color: "#f59e0b"
 icon: LayoutDashboard
 connections: ["homelabs","react"]
 ---

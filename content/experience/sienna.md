@@ -4,7 +4,6 @@ label: SIENNA
 subtitle: SysAdmin / Archiving
 category: experience
 size: 22
-color: "#a78bfa"
 icon: Briefcase
 connections: ["robin"]
 ---

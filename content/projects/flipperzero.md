@@ -2,9 +2,8 @@
 id: flipperzero
 label: Flipper Zero
 subtitle: Hardware Hacking
-category: projects
+category: security
 size: 14
-color: "#f472b6"
 icon: Radio
 connections: ["axians"]
 ---

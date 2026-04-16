@@ -4,7 +4,6 @@ label: Proxmox
 subtitle: Hypervisor Cluster
 category: projects
 size: 14
-color: "#f59e0b"
 icon: Server
 connections: ["homelabs"]
 ---

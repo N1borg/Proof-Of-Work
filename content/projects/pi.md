@@ -4,7 +4,6 @@ label: Raspberry Pi
 subtitle: SBC Ecosystem
 category: projects
 size: 16
-color: "#f59e0b"
 icon: Cpu
 connections: ["homelabs"]
 ---

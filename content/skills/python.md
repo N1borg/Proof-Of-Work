@@ -4,7 +4,6 @@ label: Python
 subtitle: Language
 category: skills
 size: 16
-color: "#60a5fa"
 icon: Code
 connections: ["worldline"]
 ---

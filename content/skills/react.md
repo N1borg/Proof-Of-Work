@@ -4,7 +4,6 @@ label: React
 subtitle: UI Framework
 category: skills
 size: 16
-color: "#60a5fa"
 icon: Atom
 connections: []
 ---

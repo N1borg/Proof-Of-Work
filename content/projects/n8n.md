@@ -4,7 +4,6 @@ label: n8n
 subtitle: Workflow Automation
 category: projects
 size: 12
-color: "#f59e0b"
 icon: Workflow
 connections: ["homelabs","docker"]
 ---

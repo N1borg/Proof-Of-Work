@@ -4,7 +4,6 @@ label: Me
 subtitle: Robin Caboche
 category: center
 size: 30
-color: "#34d399"
 icon: Shield
 connections: []
 ---

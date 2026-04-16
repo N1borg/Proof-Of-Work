@@ -4,7 +4,6 @@ label: Pi Zero
 subtitle: Embedded Projects
 category: projects
 size: 12
-color: "#f59e0b"
 icon: Cpu
 connections: ["pi"]
 ---

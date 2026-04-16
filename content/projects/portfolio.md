@@ -4,7 +4,6 @@ label: Portfolio
 subtitle: This Website
 category: projects
 size: 12
-color: "#f472b6"
 icon: Globe
 connections: ["robin","react"]
 ---

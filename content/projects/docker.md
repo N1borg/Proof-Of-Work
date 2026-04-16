@@ -4,7 +4,6 @@ label: Docker
 subtitle: Container Platform
 category: projects
 size: 14
-color: "#f59e0b"
 icon: Box
 connections: ["homelabs","bash"]
 ---

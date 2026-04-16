@@ -4,7 +4,6 @@ label: Debian
 subtitle: Server OS
 category: projects
 size: 12
-color: "#f59e0b"
 icon: HardDrive
 connections: ["homelabs"]
 ---

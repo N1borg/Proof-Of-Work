@@ -18,6 +18,7 @@ export default function GraphEngine() {
   const [graphData, setGraphData] = useState(null);
   const [activeNode, setActiveNode] = useState(null);
   const [hoveredNode, setHoveredNode] = useState(null);
+  const [selectedCategory, setSelectedCategory] = useState(null);
 
   // ── Load data once ──
   useEffect(() => {
@@ -215,17 +216,32 @@ export default function GraphEngine() {
   // ── Interaction helpers ──
   const connectedIds = useMemo(() => {
     if (!graphData) return null;
+    
+    const ids = new Set();
+    
+    // Add selected category nodes
+    if (selectedCategory) {
+      graphData.nodes.forEach(n => {
+        if (n.category === selectedCategory) {
+          ids.add(n.id);
+        }
+      });
+    }
+    
+    // Add active node and its connections
     const target = activeNode || hoveredNode;
-    if (!target) return null;
-    const ids = new Set([target.id]);
-    graphData.links.forEach(l => {
-      const sid = typeof l.source === 'object' ? l.source.id : l.source;
-      const tid = typeof l.target === 'object' ? l.target.id : l.target;
-      if (sid === target.id) ids.add(tid);
-      if (tid === target.id) ids.add(sid);
-    });
-    return ids;
-  }, [graphData, activeNode, hoveredNode]);
+    if (target) {
+      ids.add(target.id);
+      graphData.links.forEach(l => {
+        const sid = typeof l.source === 'object' ? l.source.id : l.source;
+        const tid = typeof l.target === 'object' ? l.target.id : l.target;
+        if (sid === target.id) ids.add(tid);
+        if (tid === target.id) ids.add(sid);
+      });
+    }
+    
+    return ids.size > 0 ? ids : null;
+  }, [graphData, activeNode, hoveredNode, selectedCategory]);
 
   const handleNodeClick = useCallback((node) => {
     setActiveNode(prev => {
@@ -319,7 +335,7 @@ export default function GraphEngine() {
         </div>
       </div>
 
-      <Topbar categories={categoryList} />
+      <Topbar categories={categoryList} selectedCategory={selectedCategory} onCategoryClick={setSelectedCategory} />
       <Sidebar node={activeNode} onClose={handleCloseSidebar} onExpandChange={handleSidebarExpand} />
     </>
   );

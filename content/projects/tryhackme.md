@@ -2,9 +2,8 @@
 id: tryhackme
 label: TryHackMe
 subtitle: CTF Training
-category: projects
+category: security
 size: 14
-color: "#f472b6"
 icon: Trophy
 connections: ["axians"]
 ---

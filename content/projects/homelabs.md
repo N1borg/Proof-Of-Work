@@ -4,7 +4,6 @@ label: Homelab
 subtitle: Self-Hosted Infrastructure
 category: projects
 size: 18
-color: "#f59e0b"
 icon: Server
 connections: ["robin"]
 ---

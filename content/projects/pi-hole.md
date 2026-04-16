@@ -4,7 +4,6 @@ label: Pi-hole
 subtitle: DNS Ad Blocking
 category: projects
 size: 12
-color: "#f59e0b"
 icon: ShieldOff
 connections: ["pi","docker"]
 ---

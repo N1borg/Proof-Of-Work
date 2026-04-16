@@ -4,7 +4,6 @@ label: Axians
 subtitle: Pentester & Red Team
 category: experience
 size: 22
-color: "#a78bfa"
 icon: Briefcase
 connections: ["robin"]
 ---

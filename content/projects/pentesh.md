@@ -2,9 +2,8 @@
 id: pentesh
 label: Pentest Hub
 subtitle: Pentest Tooling
-category: projects
+category: security
 size: 14
-color: "#f472b6"
 icon: Terminal
 connections: ["axians","python","bash"]
 ---

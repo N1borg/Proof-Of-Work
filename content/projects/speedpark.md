@@ -2,9 +2,8 @@
 id: speedpark
 label: SpeedPark Brute
 subtitle: Parking System Exploit
-category: projects
+category: security
 size: 14
-color: "#f472b6"
 icon: Terminal
 connections: ["axians","python"]
 ---

@@ -4,7 +4,6 @@ label: Bash
 subtitle: Shell Scripting
 category: skills
 size: 16
-color: "#60a5fa"
 icon: TerminalSquare
 connections: []
 ---

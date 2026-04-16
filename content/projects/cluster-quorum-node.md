@@ -4,7 +4,6 @@ label: Quorum Node
 subtitle: Proxmox Tie-Breaker
 category: projects
 size: 12
-color: "#f59e0b"
 icon: GitBranch
 connections: ["pi","proxmox"]
 ---

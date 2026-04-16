@@ -4,7 +4,6 @@ label: Linux
 subtitle: Operating System
 category: projects
 size: 14
-color: "#f59e0b"
 icon: TerminalSquare
 connections: ["homelabs","bash"]
 ---

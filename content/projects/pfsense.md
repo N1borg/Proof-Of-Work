@@ -4,7 +4,6 @@ label: pfSense
 subtitle: Network Firewall
 category: projects
 size: 14
-color: "#f59e0b"
 icon: Shield
 connections: ["homelabs"]
 ---

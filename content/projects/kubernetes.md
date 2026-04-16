@@ -4,7 +4,6 @@ label: Kubernetes
 subtitle: Orchestration
 category: projects
 size: 14
-color: "#f59e0b"
 icon: Network
 connections: ["homelabs","docker"]
 ---

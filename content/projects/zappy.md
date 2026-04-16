@@ -2,9 +2,8 @@
 id: zappy
 label: Zappy
 subtitle: AI Networked Game
-category: projects
+category: security
 size: 14
-color: "#f472b6"
 icon: Gamepad2
 connections: ["robin","c","cpp"]
 ---

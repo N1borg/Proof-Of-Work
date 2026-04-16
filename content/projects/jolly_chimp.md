@@ -2,9 +2,8 @@
 id: jolly_chimp
 label: Jolly Chimp
 subtitle: Creative Project
-category: projects
+category: security
 size: 12
-color: "#f472b6"
 icon: Sparkles
 connections: ["robin"]
 ---

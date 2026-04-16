@@ -4,7 +4,6 @@ label: Pi-KVM
 subtitle: Remote KVM-over-IP
 category: projects
 size: 12
-color: "#f59e0b"
 icon: MonitorSmartphone
 connections: ["pi"]
 ---

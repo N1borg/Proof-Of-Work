@@ -4,7 +4,6 @@ label: VMs
 subtitle: Virtual Machines
 category: projects
 size: 12
-color: "#f59e0b"
 icon: Monitor
 connections: ["proxmox"]
 ---

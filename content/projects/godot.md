@@ -4,7 +4,6 @@ label: Godot
 subtitle: Game Engine
 category: projects
 size: 12
-color: "#f472b6"
 icon: Gamepad2
 connections: ["robin"]
 ---

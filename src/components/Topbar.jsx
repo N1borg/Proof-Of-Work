@@ -1,7 +1,7 @@
 import React from 'react';
 import { Code, Briefcase, Mail, Globe } from 'lucide-react';
 
-export default function Topbar({ categories = [] }) {
+export default function Topbar({ categories = [], selectedCategory = null, onCategoryClick = null }) {
   const socialLinks = [
     { name: 'GitHub', icon: Code, href: 'https://github.com/N1borg', color: '#a78bfa' },
     { name: 'LinkedIn', icon: Briefcase, href: 'https://linkedin.com/in/robin-caboche', color: '#60a5fa' },
@@ -11,6 +11,13 @@ export default function Topbar({ categories = [] }) {
 
   // De-duplicate categories and filter out 'center'
   const uniqueCategories = categories.filter(c => c.name !== 'center');
+
+  const handleCategoryClick = (categoryName) => {
+    if (onCategoryClick) {
+      // Toggle: if clicking the same category, deselect it; otherwise select it
+      onCategoryClick(selectedCategory === categoryName ? null : categoryName);
+    }
+  };
 
   return (
     <div className="absolute top-0 left-0 w-full z-30 pointer-events-auto">
@@ -60,21 +67,31 @@ export default function Topbar({ categories = [] }) {
         {/* Right: Category Legend */}
         {uniqueCategories.length > 0 && (
           <div className="hidden md:flex items-center gap-2 shrink-0">
-            {uniqueCategories.map((cat) => (
-              <div
-                key={cat.name}
-                className="flex items-center gap-1.5 px-2.5 py-1 rounded-full border border-white/[0.06]"
-                style={{ backgroundColor: `${cat.color}08` }}
-              >
-                <div
-                  className="w-[6px] h-[6px] rounded-full shrink-0"
-                  style={{ backgroundColor: cat.color, boxShadow: `0 0 6px ${cat.color}40` }}
-                />
-                <span className="text-[10px] uppercase tracking-[0.08em] text-white/50 font-medium">
-                  {cat.name}
-                </span>
-              </div>
-            ))}
+            {uniqueCategories.map((cat) => {
+              const isSelected = selectedCategory === cat.name;
+              return (
+                <button
+                  key={cat.name}
+                  onClick={() => handleCategoryClick(cat.name)}
+                  className="flex items-center gap-1.5 px-2.5 py-1 rounded-full border transition-all duration-300 cursor-pointer hover:border-white/[0.12]"
+                  style={{
+                    backgroundColor: isSelected ? `${cat.color}15` : `${cat.color}08`,
+                    borderColor: isSelected ? `${cat.color}60` : 'rgba(255,255,255,0.06)',
+                  }}
+                >
+                  <div
+                    className="w-[6px] h-[6px] rounded-full shrink-0 transition-all duration-300"
+                    style={{
+                      backgroundColor: cat.color,
+                      boxShadow: isSelected ? `0 0 12px ${cat.color}80, 0 0 24px ${cat.color}40` : `0 0 6px ${cat.color}40`
+                    }}
+                  />
+                  <span className="text-[10px] uppercase tracking-[0.08em] font-medium transition-colors duration-300" style={{ color: isSelected ? `${cat.color}ff` : 'rgba(255,255,255,0.5)' }}>
+                    {cat.name}
+                  </span>
+                </button>
+              );
+            })}
           </div>
         )}
       </div>

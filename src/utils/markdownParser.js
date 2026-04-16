@@ -1,3 +1,5 @@
+import { getCategoryConfig } from './categoryConfig.js';
+
 export function parseFrontmatter(rawContent) {
   const match = rawContent.match(/^---\r?\n([\s\S]*?)\r?\n---\r?\n([\s\S]*)$/);
   if (!match) return { data: {}, content: rawContent };
@@ -60,13 +62,16 @@ export function loadGraphData() {
     const { data: frontmatter, content } = parseFrontmatter(rawContent);
 
     const id = frontmatter.id || path.split('/').pop().replace('.md', '');
+    const category = frontmatter.category || 'projects';
+    const categoryConfig = getCategoryConfig(category);
+    
     nodes.push({
       id,
       label: frontmatter.label || id,
       subtitle: frontmatter.subtitle || '',
-      category: frontmatter.category || 'unknown',
+      category: category,
       size: frontmatter.size || 20,
-      color: frontmatter.color || '#333333',
+      color: categoryConfig.color,
       icon: frontmatter.icon || 'Circle',
       connections: frontmatter.connections || [],
       date: frontmatter.date || null,

@@ -2,9 +2,8 @@
 id: lehack
 label: LeHack
 subtitle: CTF Competition
-category: projects
+category: security
 size: 14
-color: "#f472b6"
 icon: Trophy
 connections: ["axians"]
 ---
