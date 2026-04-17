@@ -21,8 +21,23 @@ export default function GraphEngine() {
   const [hoveredNode, setHoveredNode] = useState(null);
   const [selectedCategory, setSelectedCategory] = useState(null);
   const [zoomTransform, setZoomTransform] = useState(null);
-  const [minimapVisible, setMinimapVisible] = useState(true);
+  const [minimapVisible, setMinimapVisible] = useState(false);
   const minimapTimeoutRef = useRef(null);
+
+  // Helper to show minimap and set auto-hide timer
+  const showMinimapWithTimeout = useCallback(() => {
+    setMinimapVisible(true);
+    
+    // Clear existing timeout
+    if (minimapTimeoutRef.current) {
+      clearTimeout(minimapTimeoutRef.current);
+    }
+    
+    // Set new timeout to hide after 3 seconds
+    minimapTimeoutRef.current = setTimeout(() => {
+      setMinimapVisible(false);
+    }, 3000);
+  }, []);
 
   // ── Load data once ──
   useEffect(() => {
@@ -107,8 +122,9 @@ export default function GraphEngine() {
         const { x, y, k } = e.transform;
         layer.style.transform = `translate(${x}px, ${y}px) scale(${k})`;
         
-        // Update zoom transform for minimap
+        // Update zoom transform and show minimap with auto-hide
         setZoomTransform(e.transform);
+        showMinimapWithTimeout();
       });
 
     const sel = d3.select(containerRef.current);
@@ -119,7 +135,7 @@ export default function GraphEngine() {
       sel.on('.zoom', null);
       if (minimapTimeoutRef.current) clearTimeout(minimapTimeoutRef.current);
     };
-  }, [graphData]);
+  }, [graphData, showMinimapWithTimeout]);
 
   // ── Camera focus when a node is selected ──
   const focusOnGroup = useCallback((node, isExpanded = false) => {
