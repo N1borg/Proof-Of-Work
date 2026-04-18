@@ -32,11 +32,11 @@ export default function MiniMap({
       return { minX: 0, maxX: 1000, minY: 0, maxY: 800, width: 1000, height: 800 };
     }
 
-    // Add proportional padding based on the graph size
+    // Add minimal padding based on the graph size
     const graphWidth = maxX - minX;
     const graphHeight = maxY - minY;
-    const paddingX = graphWidth * 0.15; // 15% padding
-    const paddingY = graphHeight * 0.15;
+    const paddingX = graphWidth * 0.05; // 5% padding for tighter zoom
+    const paddingY = graphHeight * 0.05;
 
     minX -= paddingX;
     maxX += paddingX;
