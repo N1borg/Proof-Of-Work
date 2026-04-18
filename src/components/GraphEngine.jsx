@@ -125,7 +125,6 @@ export default function GraphEngine() {
     zoomRef.current = { zoom, selection: sel };
 
     return () => {
-      sel.on('.zoom', null);
       if (minimapTimeoutRef.current) clearTimeout(minimapTimeoutRef.current);
     };
   }, [graphData]);
