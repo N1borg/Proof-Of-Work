@@ -6,14 +6,13 @@ export default function MiniMap({
   transform = null,
   visible = false,
   onViewportClick = null,
-  layoutUpdateCounter = 0,
 }) {
   const MINIMAP_WIDTH = 180;
   const MINIMAP_HEIGHT = 140;
   const PADDING = 8;
 
-  // Calculate bounds of all nodes
-  const bounds = useMemo(() => {
+  // Calculate bounds of all nodes - recalculate every render to adapt as nodes move
+  const bounds = (() => {
     if (!nodes || nodes.length === 0) {
       return { minX: 0, maxX: 1000, minY: 0, maxY: 800, width: 1000, height: 800 };
     }
@@ -52,14 +51,14 @@ export default function MiniMap({
       width: maxX - minX,
       height: maxY - minY,
     };
-  }, [nodes, layoutUpdateCounter]);
+  })();
 
-  // Calculate scale to fit the minimap
-  const scale = useMemo(() => {
+  // Calculate scale to fit the minimap - recalculate as bounds change
+  const scale = (() => {
     const scaleX = (MINIMAP_WIDTH - PADDING * 2) / bounds.width;
     const scaleY = (MINIMAP_HEIGHT - PADDING * 2) / bounds.height;
     return Math.min(scaleX, scaleY);
-  }, [bounds]);
+  })();
 
   // Transform world coordinates to minimap coordinates
   const worldToMinimap = useCallback((x, y) => {
