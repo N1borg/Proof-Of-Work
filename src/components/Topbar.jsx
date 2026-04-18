@@ -1,12 +1,15 @@
 import React from 'react';
-import { Code, Briefcase, Mail, Globe } from 'lucide-react';
+import { Mail } from 'lucide-react';
+import GithubIcon from '../assets/github-icon.svg';
+import LinkedinIcon from '../assets/linkedin-icon.svg';
+import TryhackmeIcon from '../assets/tryhackme-icon.svg';
 
 export default function Topbar({ categories = [], selectedCategory = null, onCategoryClick = null }) {
   const socialLinks = [
-    { name: 'GitHub', icon: Code, href: 'https://github.com/N1borg', color: '#a78bfa' },
-    { name: 'LinkedIn', icon: Briefcase, href: 'https://linkedin.com/in/robin-caboche', color: '#60a5fa' },
-    { name: 'TryHackMe', icon: Globe, href: 'https://tryhackme.com/p/Niborg', color: '#34d399' },
-    { name: 'Email', icon: Mail, href: 'mailto:robin.caboche@epitech.eu', color: '#f472b6' },
+    { name: 'GitHub', icon: GithubIcon, href: 'https://github.com/N1borg', color: '#a78bfa' },
+    { name: 'LinkedIn', icon: LinkedinIcon, href: 'https://linkedin.com/in/robin-caboche', color: '#60a5fa' },
+    { name: 'TryHackMe', icon: TryhackmeIcon, href: 'https://tryhackme.com/p/Niborg', color: '#34d399' },
+    { name: 'Email', icon: Mail, href: 'mailto:robin.caboche@epitech.eu', color: '#f472b6', isLucide: true },
   ];
 
   // De-duplicate categories and filter out 'center'
@@ -22,7 +25,7 @@ export default function Topbar({ categories = [], selectedCategory = null, onCat
   return (
     <div className="absolute top-0 left-0 w-full z-30 pointer-events-auto">
       <div
-        className="w-full flex items-center justify-between px-8 py-4 border-b border-white/[0.04]"
+        className="w-full flex items-center px-8 py-4 border-b border-white/[0.04]"
         style={{
           background: 'linear-gradient(to bottom, rgba(3,3,3,0.85), rgba(3,3,3,0))',
           backdropFilter: 'blur(16px) saturate(1.3)',
@@ -40,7 +43,7 @@ export default function Topbar({ categories = [], selectedCategory = null, onCat
         </div>
 
         {/* Center: Social Links */}
-        <div className="hidden sm:flex items-center gap-6">
+        <div className="hidden sm:flex flex-1 justify-center items-center gap-6 px-8">
           {socialLinks.map((link) => (
             <a
               key={link.name}
@@ -49,12 +52,24 @@ export default function Topbar({ categories = [], selectedCategory = null, onCat
               rel="noopener noreferrer"
               className="flex flex-col items-center gap-1.5 group transition-all duration-300"
             >
-              <link.icon
-                size={20}
-                strokeWidth={1.5}
-                className="text-white/60 transition-colors duration-300 group-hover:drop-shadow-sm"
-                style={{}}
-              />
+              {link.isLucide ? (
+                <link.icon
+                  size={20}
+                  strokeWidth={1.5}
+                  className="text-white/60 transition-colors duration-300 group-hover:drop-shadow-sm"
+                  style={{}}
+                />
+              ) : (
+                <img
+                  src={link.icon}
+                  alt={link.name}
+                  className="w-5 h-5 social-icon opacity-60 group-hover:opacity-90"
+                  style={{
+                    filter: 'grayscale(100%)',
+                    transition: 'filter 0.3s ease, opacity 0.3s ease',
+                  }}
+                />
+              )}
               <span
                 className="text-[9px] uppercase tracking-wider text-white/40 transition-colors duration-300"
               >
@@ -98,6 +113,9 @@ export default function Topbar({ categories = [], selectedCategory = null, onCat
 
       {/* Hover color styles for social links */}
       <style>{`
+        .group:hover .social-icon {
+          filter: grayscale(0%) !important;
+        }
         ${socialLinks.map((link, i) => `
           .hidden.sm\\:flex.items-center.gap-6 > a:nth-child(${i + 1}):hover svg {
             color: ${link.color} !important;
