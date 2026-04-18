@@ -21,7 +21,7 @@ export default function GraphEngine() {
   const [hoveredNode, setHoveredNode] = useState(null);
   const [selectedCategory, setSelectedCategory] = useState(null);
   const [zoomTransform, setZoomTransform] = useState(null);
-  const [minimapVisible, setMinimapVisible] = useState(true);
+  const [minimapVisible, setMinimapVisible] = useState(false);
   const minimapTimeoutRef = useRef(null);
 
   // ── Load data once ──
@@ -107,8 +107,17 @@ export default function GraphEngine() {
         const { x, y, k } = e.transform;
         layer.style.transform = `translate(${x}px, ${y}px) scale(${k})`;
         
-        // Update zoom transform for minimap
+        // Update zoom transform and show minimap
         setZoomTransform(e.transform);
+        setMinimapVisible(true);
+        
+        // Auto-hide minimap after 2 seconds
+        if (minimapTimeoutRef.current) {
+          clearTimeout(minimapTimeoutRef.current);
+        }
+        minimapTimeoutRef.current = setTimeout(() => {
+          setMinimapVisible(false);
+        }, 2000);
       });
 
     const sel = d3.select(containerRef.current);

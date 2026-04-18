@@ -135,7 +135,7 @@ export default function MiniMap({
       }}
     >
       <div
-        className="rounded-lg border border-white/[0.08] p-2 cursor-pointer hover:border-white/[0.16] transition-colors"
+        className="rounded-lg border border-white/[0.08] p-2 cursor-pointer transition-colors"
         style={{
           backgroundColor: 'rgba(12, 12, 16, 0.6)',
           backdropFilter: 'blur(12px)',
