@@ -5,6 +5,7 @@ import Sidebar from './Sidebar';
 import GraphNode from './GraphNode';
 import Topbar from './Topbar';
 import MiniMap from './MiniMap';
+import SearchBar from './SearchBar';
 
 export default function GraphEngine() {
   const containerRef = useRef(null);
@@ -22,11 +23,15 @@ export default function GraphEngine() {
   const [selectedCategory, setSelectedCategory] = useState(null);
   const [zoomTransform, setZoomTransform] = useState(null);
   const [minimapVisible, setMinimapVisible] = useState(false);
+  const [searchResults, setSearchResults] = useState([]);
+  const [searchQuery, setSearchQuery] = useState('');
+  const [searchHoveredNode, setSearchHoveredNode] = useState(null);
   const minimapTimeoutRef = useRef(null);
 
   // ── Load data once ──
   useEffect(() => {
-    setGraphData(loadGraphData());
+    const data = loadGraphData();
+    setGraphData(data);
   }, []);
 
   // ── Force simulation ──
@@ -237,6 +242,11 @@ export default function GraphEngine() {
     
     const ids = new Set();
     
+    // Only add search hovered node (temporary hover from search results)
+    if (searchHoveredNode) {
+      ids.add(searchHoveredNode.id);
+    }
+    
     // Add selected category nodes
     if (selectedCategory) {
       graphData.nodes.forEach(n => {
@@ -259,7 +269,7 @@ export default function GraphEngine() {
     }
     
     return ids.size > 0 ? ids : null;
-  }, [graphData, activeNode, hoveredNode, selectedCategory]);
+  }, [graphData, activeNode, hoveredNode, selectedCategory, searchHoveredNode]);
 
   const handleNodeClick = useCallback((node) => {
     setActiveNode(prev => {
@@ -271,6 +281,21 @@ export default function GraphEngine() {
       return node;
     });
   }, [focusOnGroup, resetCamera]);
+
+  const handleSearchResults = useCallback((searchData) => {
+    if (typeof searchData === 'object' && searchData.results !== undefined) {
+      setSearchResults(searchData.results);
+      setSearchQuery(searchData.query);
+    } else {
+      // Fallback for array format
+      setSearchResults(searchData || []);
+      setSearchQuery('');
+    }
+  }, []);
+
+  const handleSearchNodeSelect = useCallback((node) => {
+    handleNodeClick(node);
+  }, [handleNodeClick]);
 
   const handleCloseSidebar = useCallback(() => {
     setActiveNode(null);
@@ -367,7 +392,13 @@ export default function GraphEngine() {
       </div>
 
       <Topbar categories={categoryList} selectedCategory={selectedCategory} onCategoryClick={setSelectedCategory} />
-      <Sidebar node={activeNode} onClose={handleCloseSidebar} onExpandChange={handleSidebarExpand} />
+      <SearchBar
+        graphData={graphData}
+        onSearchResults={handleSearchResults}
+        onNodeSelect={handleSearchNodeSelect}
+        onHoverNode={setSearchHoveredNode}
+      />
+      <Sidebar node={activeNode} onClose={handleCloseSidebar} onExpandChange={handleSidebarExpand} searchResults={searchResults} />
       <MiniMap
         nodes={graphData.nodes}
         links={graphData.links}

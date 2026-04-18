@@ -1,9 +1,9 @@
 import React, { useState } from 'react';
 import ReactMarkdown from 'react-markdown';
-import { X, Maximize2, Minimize2, Calendar } from 'lucide-react';
+import { X, Maximize2, Minimize2, Calendar, Lightbulb } from 'lucide-react';
 import clsx from 'clsx';
 
-export default function Sidebar({ node, onClose, onExpandChange }) {
+export default function Sidebar({ node, onClose, onExpandChange, searchResults = [] }) {
   const [expanded, setExpanded] = useState(false);
 
   // Reset expanded state when node changes
@@ -18,6 +18,9 @@ export default function Sidebar({ node, onClose, onExpandChange }) {
     setExpanded(next);
     onExpandChange?.(next);
   };
+
+  // Get current search match info if this node has matches
+  const currentNodeSearch = searchResults.find(r => r.node.id === node?.id);
 
   // Close on Escape key
   React.useEffect(() => {
@@ -81,6 +84,21 @@ export default function Sidebar({ node, onClose, onExpandChange }) {
                 </div>
               </div>
               <div className="flex items-center gap-1">
+                {currentNodeSearch && (
+                  <div className="px-3 py-1.5 rounded-full flex items-center gap-1.5 mr-2"
+                    style={{
+                      backgroundColor: '#fbbf2415',
+                      border: '1px solid #fbbf2440'
+                    }}
+                  >
+                    <Lightbulb size={12} className="text-yellow-500/60" />
+                    <span className="text-[10px] text-yellow-500/70 font-medium">
+                      {currentNodeSearch.matches.titleMatch ? '1 title' : ''}
+                      {currentNodeSearch.matches.contentMatches.length > 0 && currentNodeSearch.matches.titleMatch ? ' + ' : ''}
+                      {currentNodeSearch.matches.contentMatches.length > 0 ? `${currentNodeSearch.matches.contentMatches.length} matches` : ''}
+                    </span>
+                  </div>
+                )}
                 <button
                   onClick={handleToggleExpand}
                   className="p-2 rounded-full hover:bg-white/[0.06] transition-colors text-white/30 hover:text-white/70"
@@ -107,6 +125,16 @@ export default function Sidebar({ node, onClose, onExpandChange }) {
 
             {/* Content */}
             <div className="flex-1 overflow-y-auto px-8 py-6 sidebar-content cursor-text">
+              <style>{`
+                mark {
+                  background-color: rgba(251, 191, 36, 0.3);
+                  color: #fbbf24;
+                  font-weight: 500;
+                  padding: 0 2px;
+                  border-radius: 2px;
+                  box-shadow: 0 0 8px rgba(251, 191, 36, 0.2);
+                }
+              `}</style>
               <ReactMarkdown
                 components={{
                   h1: ({ children }) => (
