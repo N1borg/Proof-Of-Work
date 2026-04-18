@@ -14,7 +14,7 @@ export default function MiniMap({
   // Calculate bounds of all nodes
   const bounds = useMemo(() => {
     if (!nodes || nodes.length === 0) {
-      return { minX: 0, maxX: 800, minY: 0, maxY: 600, width: 800, height: 600 };
+      return { minX: 0, maxX: 1000, minY: 0, maxY: 800, width: 1000, height: 800 };
     }
 
     let minX = Infinity, maxX = -Infinity, minY = Infinity, maxY = -Infinity;
@@ -27,32 +27,36 @@ export default function MiniMap({
       }
     });
 
-    // Add padding around the bounds
-    const paddingAmount = Math.max(100, (maxX - minX) * 0.1, (maxY - minY) * 0.1);
-    
+    // If no valid nodes, return default
+    if (minX === Infinity) {
+      return { minX: 0, maxX: 1000, minY: 0, maxY: 800, width: 1000, height: 800 };
+    }
+
+    // Add proportional padding based on the graph size
+    const graphWidth = maxX - minX;
+    const graphHeight = maxY - minY;
+    const paddingX = graphWidth * 0.15; // 15% padding
+    const paddingY = graphHeight * 0.15;
+
+    minX -= paddingX;
+    maxX += paddingX;
+    minY -= paddingY;
+    maxY += paddingY;
+
     return {
-      minX: minX - paddingAmount,
-      maxX: maxX + paddingAmount,
-      minY: minY - paddingAmount,
-      maxY: maxY + paddingAmount,
-      width: (maxX - minX) + paddingAmount * 2,
-      height: (maxY - minY) + paddingAmount * 2,
+      minX,
+      maxX,
+      minY,
+      maxY,
+      width: maxX - minX,
+      height: maxY - minY,
     };
   }, [nodes]);
 
   // Calculate scale to fit the minimap
   const scale = useMemo(() => {
-    const availableWidth = MINIMAP_WIDTH - PADDING * 2;
-    const availableHeight = MINIMAP_HEIGHT - PADDING * 2;
-    
-    if (bounds.width <= 0 || bounds.height <= 0) {
-      return 1;
-    }
-    
-    const scaleX = availableWidth / bounds.width;
-    const scaleY = availableHeight / bounds.height;
-    
-    // Use the smaller scale to ensure everything fits
+    const scaleX = (MINIMAP_WIDTH - PADDING * 2) / bounds.width;
+    const scaleY = (MINIMAP_HEIGHT - PADDING * 2) / bounds.height;
     return Math.min(scaleX, scaleY);
   }, [bounds]);
 
@@ -144,20 +148,10 @@ export default function MiniMap({
         {/* Minimap SVG */}
         <svg
           className="w-full h-full"
-          style={{ display: 'block', backgroundColor: 'rgba(0,0,0,0.2)' }}
+          style={{ display: 'block' }}
           viewBox={`0 0 ${MINIMAP_WIDTH} ${MINIMAP_HEIGHT}`}
-          preserveAspectRatio="xMidYMid meet"
           shapeRendering="crispEdges"
         >
-          {/* Background */}
-          <rect
-            x="0"
-            y="0"
-            width={MINIMAP_WIDTH}
-            height={MINIMAP_HEIGHT}
-            fill="rgba(0,0,0,0.1)"
-          />
-          
           {/* Links */}
           {links.map((link, i) => {
             const source = link.source.id ? link.source : nodes.find(n => n.id === link.source);
