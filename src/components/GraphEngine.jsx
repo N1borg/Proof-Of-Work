@@ -22,6 +22,7 @@ export default function GraphEngine() {
   const [selectedCategory, setSelectedCategory] = useState(null);
   const [zoomTransform, setZoomTransform] = useState(null);
   const [minimapVisible, setMinimapVisible] = useState(false);
+  const [layoutUpdateCounter, setLayoutUpdateCounter] = useState(0);
   const minimapTimeoutRef = useRef(null);
 
   // ── Load data once ──
@@ -88,6 +89,9 @@ export default function GraphEngine() {
           labelEl.style.top = `${n.y + (n.size || 14) * 1.1 + 10}px`;
         }
       });
+
+      // Update minimap bounds as nodes move (throttled)
+      setLayoutUpdateCounter(prev => prev + 1);
     });
 
     simRef.current = simulation;
@@ -374,6 +378,7 @@ export default function GraphEngine() {
         transform={zoomTransform}
         visible={minimapVisible && !activeNode}
         onViewportClick={handleMinimapClick}
+        layoutUpdateCounter={layoutUpdateCounter}
       />
     </>
   );

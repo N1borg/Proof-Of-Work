@@ -6,6 +6,7 @@ export default function MiniMap({
   transform = null,
   visible = false,
   onViewportClick = null,
+  layoutUpdateCounter = 0,
 }) {
   const MINIMAP_WIDTH = 180;
   const MINIMAP_HEIGHT = 140;
@@ -51,7 +52,7 @@ export default function MiniMap({
       width: maxX - minX,
       height: maxY - minY,
     };
-  }, [nodes]);
+  }, [nodes, layoutUpdateCounter]);
 
   // Calculate scale to fit the minimap
   const scale = useMemo(() => {
